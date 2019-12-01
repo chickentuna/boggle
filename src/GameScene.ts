@@ -18,6 +18,7 @@ const tileSize = 100
 export default class GameScene extends Phaser.Scene {
   board: Tile[][]
   currentTiles: Tile[]
+  currentWordText: Phaser.GameObjects.Text
   wordInProgress = false
 
   preload () {
@@ -31,6 +32,12 @@ export default class GameScene extends Phaser.Scene {
     this.input.on('pointerdown', pointer => this.onPointerDown(pointer))
     this.input.on('pointermove', pointer => this.onPointerMove(pointer))
     this.input.on('pointerup', pointer => this.onPointerUp(pointer))
+
+    this.currentWordText = this.add.text(boardX + (tileSize * boardSize) / 2, boardY / 2, '')
+      .setFontFamily('Arial')
+      .setFontSize(25)
+      .setColor('white')
+      .setAlign('center')
   }
 
   initBoard () {
@@ -58,6 +65,8 @@ export default class GameScene extends Phaser.Scene {
     this.wordInProgress = true
     this.currentTiles = [tile]
     this.highlightTile(tile)
+
+    this.currentWordText.setText(tile.letter)
   }
 
   highlightTile(tile: Tile) {
@@ -80,9 +89,12 @@ export default class GameScene extends Phaser.Scene {
     if (Math.abs(lastTile.row - tile.row) > 1 || Math.abs(lastTile.column - tile.column) > 1) {
       return
     }
-    // TODO: show current word on top
+    
     this.currentTiles.push(tile)
     this.highlightTile(tile)
+
+    const word = this.currentTiles.map(tile => tile.letter).join('')
+    this.currentWordText.setText(word).setOrigin(0.5)
   }
 
   onPointerUp(pointer: Phaser.Input.Pointer) {
@@ -95,6 +107,7 @@ export default class GameScene extends Phaser.Scene {
     this.currentTiles.forEach(tile => this.unhighlightTile(tile))
     this.wordInProgress = false
     this.currentTiles = null
+    this.currentWordText.setText('')
   }
 
   getTileAt (pointer: Phaser.Input.Pointer): Tile {
