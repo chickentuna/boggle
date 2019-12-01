@@ -18,30 +18,6 @@ const config = {
   }
 }
 
-/**
- * Shuffles an array inplace
- **/
-function shuffleArray<T> (array: T[]): void {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]]
-  }
-}
-
-/**
- * Returns an int in [low;high[
- * or [0; high[ if second parameter is left out
- **/
-function randomInt (low: number, high?: number): number {
-  if (high == null) {
-    return randomInt(0, low)
-  }
-  if (low > high) {
-    return randomInt(high, low)
-  }
-  return Math.floor((Math.random() * (high - low)) + low)
-}
-
 function preload () {
   for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
     this.load.image(`wood_${letter}`, woodTiles[letter])
@@ -56,14 +32,13 @@ function create () {
 
 function initBoard (size: number): string[][] {
   const board = []
-  const dieLeft = [...availableDie]
-  shuffleArray(dieLeft)
+  const dieLeft = Phaser.Math.RND.shuffle(availableDie)
   for (let y = 0; y < size; ++y) {
     const row = []
     for (let x = 0; x < size; ++x) {
       const dice = dieLeft.shift()
       // Roll dice
-      const letter = dice[randomInt(dice.length)]
+      const letter = Phaser.Math.RND.pick(dice)
       row.push(letter)
     }
     board.push(row)
