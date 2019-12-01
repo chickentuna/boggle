@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Phaser from 'phaser'
 
 import './App.css'
@@ -13,8 +13,10 @@ const config: Phaser.Types.Core.GameConfig = {
 }
 
 function App () {
-  // eslint-disable-next-line
-  const game = new Phaser.Game(config)
+  useEffect(() => {
+    // eslint-disable-next-line
+    const game = new Phaser.Game(config)
+  }, [])
 
   return (
     <div className='App'>
