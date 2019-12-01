@@ -17,7 +17,7 @@ const tileSize = 100
 
 export default class GameScene extends Phaser.Scene {
   board: Tile[][]
-  currentWord: Tile[]
+  currentTiles: Tile[]
   wordInProgress = false
 
   preload () {
@@ -56,7 +56,7 @@ export default class GameScene extends Phaser.Scene {
     console.log(tile)
     
     this.wordInProgress = true
-    this.currentWord = [tile]
+    this.currentTiles = [tile]
     this.highlightTile(tile)
   }
 
@@ -73,28 +73,28 @@ export default class GameScene extends Phaser.Scene {
       return
     }
     const tile = this.getTileAt(pointer)
-    if (tile == null || this.currentWord.includes(tile)) {
+    if (tile == null || this.currentTiles.includes(tile)) {
       return
     }
-    const lastTile = this.currentWord[this.currentWord.length - 1]
+    const lastTile = this.currentTiles[this.currentTiles.length - 1]
     if (Math.abs(lastTile.row - tile.row) > 1 || Math.abs(lastTile.column - tile.column) > 1) {
       return
     }
     // TODO: show current word on top
-    this.currentWord.push(tile)
+    this.currentTiles.push(tile)
     this.highlightTile(tile)
   }
 
   onPointerUp(pointer: Phaser.Input.Pointer) {
-    const word = this.currentWord.map(tile => tile.letter).join('')
+    const word = this.currentTiles.map(tile => tile.letter).join('')
 
     console.log(word)
 
     // TODO: score
 
-    this.currentWord.forEach(tile => this.unhighlightTile(tile))
+    this.currentTiles.forEach(tile => this.unhighlightTile(tile))
     this.wordInProgress = false
-    this.currentWord = null
+    this.currentTiles = null
   }
 
   getTileAt (pointer: Phaser.Input.Pointer): Tile {
