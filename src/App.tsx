@@ -1,11 +1,11 @@
 import React from 'react'
-import './App.css'
 import Phaser from 'phaser'
-import woodTiles from './assets/Wood.js'
+
+import './App.css'
+import woodTiles from './assets/Wood'
 import availableDie from './dice'
 
-var boardSize = 4
-var state = {}
+const boardSize = 4
 
 const config = {
   type: Phaser.AUTO,
@@ -21,7 +21,7 @@ const config = {
 /**
  * Shuffles an array inplace
  **/
-function shuffleArray (array) {
+function shuffleArray<T> (array: T[]): void {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]]
@@ -32,7 +32,7 @@ function shuffleArray (array) {
  * Returns an int in [low;high[
  * or [0; high[ if second parameter is left out
  **/
-function randomInt (low, high) {
+function randomInt (low: number, high?: number): number {
   if (high == null) {
     return randomInt(0, low)
   }
@@ -54,7 +54,7 @@ function create () {
   initBoardView(board, this)
 }
 
-function initBoard (size) {
+function initBoard (size: number): string[][] {
   const board = []
   const dieLeft = [...availableDie]
   shuffleArray(dieLeft)
@@ -93,6 +93,7 @@ function initBoardView (board, game) {
 }
 
 function App () {
+  // eslint-disable-next-line
   const game = new Phaser.Game(config)
 
   return (
