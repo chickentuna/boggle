@@ -11,13 +11,13 @@ export default class GameScene extends Phaser.Scene {
       this.load.image(`wood_${letter}`, woodTiles[letter])
     }
   }
-  
+
   create () {
     const board = this.initBoard(boardSize)
     console.log(board)
     this.initBoardView(board)
   }
-  
+
   initBoard (size: number): string[][] {
     const board = []
     const dieLeft = Phaser.Math.RND.shuffle(availableDie)
@@ -33,11 +33,11 @@ export default class GameScene extends Phaser.Scene {
     }
     return board
   }
-  
+
   initBoardView (board: string[][]) {
-    const boardX = 120
-    const boardY = 120
-    const tileSize = 80
+    const boardX = 100
+    const boardY = 100
+    const tileSize = 100
   
     const view = []
     for (let y = 0; y < board.length; ++y) {
@@ -47,7 +47,8 @@ export default class GameScene extends Phaser.Scene {
         const tileX = boardX + x * tileSize
         const tileY = boardY + y * tileSize
         const img = this.add.image(tileX, tileY, `wood_${letter}`)
-        img.scale = tileSize / 256
+        img.scale = tileSize / img.width
+        img.setOrigin(0)
         row.push(img)
       }
       view.push(row)
