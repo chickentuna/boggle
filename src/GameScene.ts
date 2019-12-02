@@ -111,10 +111,18 @@ export default class GameScene extends Phaser.Scene {
   }
 
   getTileAt (pointer: Phaser.Input.Pointer): Tile {
-    const row = Math.floor((pointer.worldY - boardY) / tileSize)
-    const column = Math.floor((pointer.worldX - boardX) / tileSize)
+    const x = pointer.worldX - boardX
+    const y = pointer.worldY - boardY
 
-    if (row >= 0 && row < boardSize && column >= 0 && column < boardSize) {
+    const row = Math.floor(y / tileSize)
+    const column = Math.floor(x / tileSize)
+
+    const radius = tileSize / 2
+
+    const centerX = column * tileSize + radius
+    const centerY = row * tileSize + radius
+
+    if (Phaser.Math.Distance.Between(x, y, centerX, centerY) <= radius) {
       return this.board[row][column]
     }
     return null
