@@ -1,26 +1,17 @@
-import React, { useEffect } from 'react'
-import Phaser from 'phaser'
+import React from 'react'
 
 import './App.css'
-import GameScene from './GameScene'
-
-const config: Phaser.Types.Core.GameConfig = {
-  type: Phaser.AUTO,
-  parent: 'game',
-  width: 600,
-  height: 600,
-  scene: GameScene
-}
+import Game from './Game'
 
 function App () {
-  useEffect(() => {
-    // eslint-disable-next-line
-    const game = new Phaser.Game(config)
-  }, [])
-
   return (
     <div className='App'>
-      <div id='game' />
+      <header className='App-header'>
+        <h1 className='App-header-title'>BOGGLZ</h1>
+      </header>
+      <div className='App-content'>
+        <Game />
+      </div>
     </div>
   )
 }
