@@ -31,6 +31,7 @@ export default class GameScene extends Phaser.Scene {
     this.initBoard()
     this.input.on('pointerdown', pointer => this.onPointerDown(pointer))
     this.input.on('pointermove', pointer => this.onPointerMove(pointer))
+    this.input.on('pointerupoutside', pointer => this.onPointerUp(pointer))
     this.input.on('pointerup', pointer => this.onPointerUp(pointer))
 
     this.currentWordText = this.add.text(boardX + (tileSize * boardSize) / 2, boardY / 2, '')
@@ -60,6 +61,10 @@ export default class GameScene extends Phaser.Scene {
 
   onPointerDown (pointer: Phaser.Input.Pointer) {
     const tile = this.getTileAt(pointer)
+    if (!tile) {
+      return
+    }
+    
     console.log(tile)
     
     this.wordInProgress = true
@@ -98,6 +103,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   onPointerUp(pointer: Phaser.Input.Pointer) {
+    if (this.currentTiles == null) {
+      return
+    }
+    
     const word = this.currentTiles.map(tile => tile.letter).join('')
 
     console.log(word)
@@ -123,7 +132,7 @@ export default class GameScene extends Phaser.Scene {
     const centerY = row * tileSize + radius
 
     if (Phaser.Math.Distance.Between(x, y, centerX, centerY) <= radius) {
-      return this.board[row][column]
+      return this.board[row] && this.board[row][column]
     }
     return null
   }
