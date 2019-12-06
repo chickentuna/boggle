@@ -27,6 +27,9 @@ export default class GameScene extends Phaser.Scene {
   wordInProgress = false
   dictionaries: { [language in Language]: string[] }
   dictionary: string[]
+  score: number
+  scoreText: Phaser.GameObjects.Text
+  words: string[]
 
   preload () {
     for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
@@ -47,6 +50,16 @@ export default class GameScene extends Phaser.Scene {
       .setFontSize(25)
       .setColor('white')
       .setAlign('center')
+      .setOrigin(0.5)
+
+    this.words = []
+    this.score = 0
+    this.scoreText = this.add.text(boardX + (tileSize * boardSize) / 2, boardY + (tileSize * boardSize) + boardY / 2, '0')
+      .setFontFamily('Arial')
+      .setFontSize(25)
+      .setColor('white')
+      .setAlign('center')
+      .setOrigin(0.5)
   }
 
   async fetchDictionaries () {
@@ -78,7 +91,7 @@ export default class GameScene extends Phaser.Scene {
     if (!tile) {
       return
     }
-    
+
     this.wordInProgress = true
     this.currentTiles = [tile]
     this.highlightTile(tile)
@@ -106,16 +119,16 @@ export default class GameScene extends Phaser.Scene {
     if (Math.abs(lastTile.row - tile.row) > 1 || Math.abs(lastTile.column - tile.column) > 1) {
       return
     }
-    
+
     this.currentTiles.push(tile)
     this.highlightTile(tile)
 
     const word = this.currentTiles.map(tile => tile.letter).join('')
-    this.currentWordText.setText(word).setOrigin(0.5)
+    this.currentWordText.setText(word)
   }
 
   getWordScore(word: string): number {
-    const wordExists = this.dictionary.includes(word.toLowerCase())
+    const wordExists = this.dictionary.includes(word)
     if (!wordExists) {
       return 0
     }
@@ -138,11 +151,18 @@ export default class GameScene extends Phaser.Scene {
     if (this.currentTiles == null) {
       return
     }
-    
-    const word = this.currentTiles.map(tile => tile.letter).join('')
-    const score = this.getWordScore(word)
 
-    console.log(word, score)
+    const word = this.currentTiles.map(tile => tile.letter).join('')
+    console.log(word)
+
+    const wordExists = this.dictionary.includes(word)
+    const alreadyFound = this.words.includes(word)
+    const isNewWord = wordExists && !alreadyFound
+    if (isNewWord) {
+      this.words.push(word)
+      this.score += this.getWordScore(word)
+      this.scoreText.setText(this.score.toString())
+    }
 
     this.currentTiles.forEach(tile => this.unhighlightTile(tile))
     this.wordInProgress = false

@@ -11,8 +11,8 @@ router.get('/dictionaries', async (ctx) => {
     fs.promises.readFile(path.join(__dirname, 'dictionaries', 'francais.txt'), 'utf-8')
   ])
   ctx.body = {
-    EN: removeAccent(en).split(/\r?\n/),
-    FR: removeAccent(fr).split(/\r?\n/)
+    EN: en.split(/\r?\n/).map(w => removeAccent(w).toUpperCase()),
+    FR: fr.split(/\r?\n/).map(w => removeAccent(w).toUpperCase())
   }
 })
 
