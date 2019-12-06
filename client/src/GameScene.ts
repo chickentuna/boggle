@@ -99,15 +99,15 @@ export default class GameScene extends Phaser.Scene {
     this.currentWordText.setText(tile.letter)
   }
 
-  highlightTile(tile: Tile) {
+  highlightTile (tile: Tile) {
     tile.sprite.setTint(0x00ff00)
   }
 
-  unhighlightTile(tile: Tile) {
+  unhighlightTile (tile: Tile) {
     tile.sprite.clearTint()
   }
 
-  onPointerMove(pointer: Phaser.Input.Pointer) {
+  onPointerMove (pointer: Phaser.Input.Pointer) {
     if (!this.wordInProgress) {
       return
     }
@@ -127,13 +127,13 @@ export default class GameScene extends Phaser.Scene {
     this.currentWordText.setText(word)
   }
 
-  getWordScore(word: string): number {
+  getWordScore (word: string): number {
     const wordExists = this.dictionary.includes(word)
     if (!wordExists) {
       return 0
     }
     if (word.length < 3) {
-      return 0;
+      return 0
     } else if (word.length < 5) {
       return 1
     } else if (word.length === 5) {
@@ -147,7 +147,7 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  onPointerUp(pointer: Phaser.Input.Pointer) {
+  onPointerUp (pointer: Phaser.Input.Pointer) {
     if (this.currentTiles == null) {
       return
     }
