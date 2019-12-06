@@ -1,7 +1,8 @@
 import Phaser from 'phaser'
-
+import removeAccent from 'remove-accents'
 import woodTiles from './assets/Wood'
 import availableDie from './dice'
+import dictionary from '../shared/dictionaries/francais.txt'
 
 interface Tile {
   row: number
@@ -100,6 +101,25 @@ export default class GameScene extends Phaser.Scene {
 
     const word = this.currentTiles.map(tile => tile.letter).join('')
     this.currentWordText.setText(word).setOrigin(0.5)
+  }
+
+  getWordScore(word: string) : integer {
+    if (!dictionary.find(w => removeAccent(w) === word)) {
+      return 0
+    }
+    if (word.length < 3) {
+      return 0;
+    } else if (word.length < 5) {
+      return 1
+    } else if (word.length === 5) {
+      return 2
+    } else if (word.length === 6) {
+      return 3
+    } else if (word.length === 7) {
+      return 5
+    } else {
+      return 11
+    }
   }
 
   onPointerUp(pointer: Phaser.Input.Pointer) {
