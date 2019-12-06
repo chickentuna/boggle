@@ -1,5 +1,6 @@
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
+import cors from '@koa/cors'
 
 import accessLog from './accessLog'
 import errorLog from './errorLog'
@@ -8,6 +9,7 @@ import router from './router'
 
 const app = new Koa()
 
+app.use(cors())
 app.use(accessLog)
 app.use(errorHandler)
 app.use(bodyParser())

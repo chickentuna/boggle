@@ -1,14 +1,18 @@
 import Phaser from 'phaser'
-import removeAccent from 'remove-accents'
+
 import woodTiles from './assets/Wood'
 import availableDie from './dice'
-import dictionary from '../shared/dictionaries/francais.txt'
 
 interface Tile {
   row: number
   column: number
   letter: string
   sprite: Phaser.GameObjects.Sprite
+}
+
+enum Language {
+  EN = 'EN',
+  FR = 'FR',
 }
 
 const boardX = 100
@@ -21,6 +25,8 @@ export default class GameScene extends Phaser.Scene {
   currentTiles: Tile[]
   currentWordText: Phaser.GameObjects.Text
   wordInProgress = false
+  dictionaries: { [language in Language]: string[] }
+  dictionary: string[]
 
   preload () {
     for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
@@ -28,7 +34,8 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  create () {
+  async create () {
+    await this.fetchDictionaries() // TODO: loader?
     this.initBoard()
     this.input.on('pointerdown', pointer => this.onPointerDown(pointer))
     this.input.on('pointermove', pointer => this.onPointerMove(pointer))
@@ -40,6 +47,12 @@ export default class GameScene extends Phaser.Scene {
       .setFontSize(25)
       .setColor('white')
       .setAlign('center')
+  }
+
+  async fetchDictionaries () {
+    const response = await fetch('http://localhost:3001/dictionaries')
+    this.dictionaries = await response.json()
+    this.dictionary = this.dictionaries.FR
   }
 
   initBoard () {
@@ -65,8 +78,6 @@ export default class GameScene extends Phaser.Scene {
     if (!tile) {
       return
     }
-    
-    console.log(tile)
     
     this.wordInProgress = true
     this.currentTiles = [tile]
@@ -103,8 +114,9 @@ export default class GameScene extends Phaser.Scene {
     this.currentWordText.setText(word).setOrigin(0.5)
   }
 
-  getWordScore(word: string) : integer {
-    if (!dictionary.find(w => removeAccent(w) === word)) {
+  getWordScore(word: string): number {
+    const wordExists = this.dictionary.includes(word.toLowerCase())
+    if (!wordExists) {
       return 0
     }
     if (word.length < 3) {
@@ -128,10 +140,9 @@ export default class GameScene extends Phaser.Scene {
     }
     
     const word = this.currentTiles.map(tile => tile.letter).join('')
+    const score = this.getWordScore(word)
 
-    console.log(word)
-
-    // TODO: score
+    console.log(word, score)
 
     this.currentTiles.forEach(tile => this.unhighlightTile(tile))
     this.wordInProgress = false
