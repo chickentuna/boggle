@@ -1,7 +1,8 @@
 import Phaser from 'phaser'
-
+import blankDice from './assets/blank_dice.png'
 import woodTiles from './assets/Wood'
 import availableDie from './dice'
+import greenfelt from './assets/greenfelt.jpg'
 
 interface Tile {
   row: number
@@ -14,6 +15,7 @@ interface Tile {
 interface GameLayers {
   foreground: Phaser.GameObjects.Container
   middleground: Phaser.GameObjects.Container
+  background: Phaser.GameObjects.Container
 }
 
 enum Language {
@@ -44,6 +46,8 @@ export default class GameScene extends Phaser.Scene {
     for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
       this.load.image(letter, woodTiles[letter])
     }
+    this.load.image('dice', blankDice)
+    this.load.image('background', greenfelt)
   }
 
   async create () {
@@ -62,6 +66,7 @@ export default class GameScene extends Phaser.Scene {
       .setFontFamily('Arial')
       .setFontSize(25)
       .setColor('white')
+      .setStroke('black', 4)
       .setAlign('center')
       .setOrigin(0.5)
 
@@ -71,15 +76,19 @@ export default class GameScene extends Phaser.Scene {
       .setFontFamily('Arial')
       .setFontSize(25)
       .setColor('white')
+      .setStroke('black', 4)
       .setAlign('center')
       .setOrigin(0.5)
 
+    const background = this.add.sprite(0, 0, 'background')
+      .setOrigin(0)
+      .setDisplaySize(this.scale.width, this.scale.height)
+
     const allTileContainers = this.board.flatMap(v => v.map(tile => tile.container))
-
     this.layers = {
-      middleground: this.add.container(0, 0, allTileContainers),
+      background: this.add.container(0, 0, [background]),
+      middleground: this.add.container(0, 0, [...allTileContainers, this.currentWordText, this.scoreText]),
       foreground: this.add.container(0, 0)
-
     }
   }
 
@@ -99,11 +108,19 @@ export default class GameScene extends Phaser.Scene {
         const tileX = boardX + column * tileSize + tileSize / 2
         const tileY = boardY + row * tileSize + tileSize / 2
         const container = this.add.container(tileX, tileY)
-        const sprite = this.add.sprite(0, 0, letter).setInteractive()
+        const sprite = this.add.sprite(0, 0, 'dice').setInteractive()
+        const letterText = this.add.text(0, 0, letter)
+          .setFontFamily('Arial')
+          .setFontSize(60)
+          .setColor('black')
+          .setAlign('center')
+          .setFontStyle('bold')
+          .setOrigin(0.5)
+
         sprite.scale = tileSize / sprite.width
         sprite.setOrigin(0.5)
         container.add(sprite)
-
+        container.add(letterText)
         tile.sprite = sprite
         tile.container = container
       }
