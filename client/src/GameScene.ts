@@ -24,6 +24,7 @@ export default class GameScene extends Phaser.Scene {
   board: Tile[][]
   currentTiles: Tile[]
   currentWordText: Phaser.GameObjects.Text
+  currentWordTextStartPosition: Phaser.Geom.Point
   wordInProgress = false
   dictionaries: { [language in Language]: string[] }
   dictionary: string[]
@@ -45,7 +46,11 @@ export default class GameScene extends Phaser.Scene {
     this.input.on('pointerupoutside', pointer => this.onPointerUp(pointer))
     this.input.on('pointerup', pointer => this.onPointerUp(pointer))
 
-    this.currentWordText = this.add.text(boardX + (tileSize * boardSize) / 2, boardY / 2, '')
+    this.currentWordTextStartPosition = new Phaser.Geom.Point(
+      boardX + (tileSize * boardSize) / 2,
+      boardY / 2
+    )
+    this.currentWordText = this.add.text(this.currentWordTextStartPosition.x, this.currentWordTextStartPosition.y, '')
       .setFontFamily('Arial')
       .setFontSize(25)
       .setColor('white')
@@ -157,17 +162,98 @@ export default class GameScene extends Phaser.Scene {
 
     const wordExists = this.dictionary.includes(word)
     const alreadyFound = this.words.includes(word)
-    const isNewWord = wordExists && !alreadyFound
+    const isValid = word.length > 2
+    const isNewWord = wordExists && !alreadyFound && isValid
     if (isNewWord) {
       this.words.push(word)
       this.score += this.getWordScore(word)
       this.scoreText.setText(this.score.toString())
+      this.animateNewWord()
+    } else if (!isValid || !wordExists) {
+      this.animateInvalidWord()
+    } else if (alreadyFound) {
+      this.animateAlreadyFoundWord()
     }
 
     this.currentTiles.forEach(tile => this.unhighlightTile(tile))
     this.wordInProgress = false
     this.currentTiles = null
+  }
+
+  animateNewWord (): void {
+    // Bump up
+    this.tweens.add({
+      targets: this.currentWordText,
+      y: '-=40',
+      ease: 'Power1',
+      duration: 300,
+      yoyo: true,
+      repeat: 0,
+      onComplete: () => {
+        this.resetCurrentWordText()
+      }
+    })
+
+    // Fade to green
+    this.tweens.addCounter({
+      from: 0xff,
+      to: 0,
+      duration: 300,
+      onUpdate: tween => {
+        var value = Math.floor(tween.getValue())
+        this.currentWordText.setTint(Phaser.Display.Color.GetColor(value, 0xff, value))
+      }
+    })
+  }
+
+  animateInvalidWord (): void {
+    const shakeForce = 10
+
+    // Shake
+    this.tweens.addCounter({
+      from: 0,
+      to: 4 * Math.PI,
+      duration: 300,
+      onUpdate: tween => {
+        this.currentWordText.setX(this.currentWordTextStartPosition.x + shakeForce * Math.sin(tween.getValue()))
+      },
+      onComplete: () => {
+        this.resetCurrentWordText()
+      }
+    })
+    // Fade to red
+    this.tweens.addCounter({
+      from: 0xff,
+      to: 0,
+      duration: 300,
+      onUpdate: tween => {
+        var value = Math.floor(tween.getValue())
+        this.currentWordText.setTint(Phaser.Display.Color.GetColor(0xff, value, value))
+      },
+      onComplete: () => {
+        this.resetCurrentWordText()
+      }
+    })
+  }
+
+  animateAlreadyFoundWord (): void {
+    // Fade out
+    this.tweens.add({
+      targets: this.currentWordText,
+      alpha: 0,
+      duration: 300,
+      repeat: 0,
+      onComplete: () => {
+        this.resetCurrentWordText()
+      }
+    })
+  }
+
+  resetCurrentWordText (): void {
     this.currentWordText.setText('')
+    this.currentWordText.setTint(0xffffff)
+    this.currentWordText.setAlpha(1)
+    this.currentWordText.setPosition(this.currentWordTextStartPosition.x, this.currentWordTextStartPosition.y)
   }
 
   getTileAt (pointer: Phaser.Input.Pointer): Tile {
