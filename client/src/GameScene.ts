@@ -219,7 +219,7 @@ export default class GameScene extends Phaser.Scene {
     // Bump up
     this.tweens.add({
       targets: this.currentWordText,
-      y: '-=40',
+      y: '-=30',
       ease: 'Power1',
       duration: 300,
       yoyo: true,
