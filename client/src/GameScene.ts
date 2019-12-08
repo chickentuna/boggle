@@ -8,6 +8,12 @@ interface Tile {
   column: number
   letter: string
   sprite: Phaser.GameObjects.Sprite
+  container: Phaser.GameObjects.Container
+}
+
+interface GameLayers {
+  foreground: Phaser.GameObjects.Container
+  middleground: Phaser.GameObjects.Container
 }
 
 enum Language {
@@ -31,6 +37,8 @@ export default class GameScene extends Phaser.Scene {
   score: number
   scoreText: Phaser.GameObjects.Text
   words: string[]
+  layers: GameLayers
+  foreground: Phaser.GameObjects.Container
 
   preload () {
     for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
@@ -65,6 +73,14 @@ export default class GameScene extends Phaser.Scene {
       .setColor('white')
       .setAlign('center')
       .setOrigin(0.5)
+
+    const allTileContainers = this.board.flatMap(v => v.map(tile => tile.container))
+
+    this.layers = {
+      middleground: this.add.container(0, 0, allTileContainers),
+      foreground: this.add.container(0, 0)
+
+    }
   }
 
   async fetchDictionaries () {
@@ -80,13 +96,16 @@ export default class GameScene extends Phaser.Scene {
     for (const row of board) {
       for (const tile of row) {
         const { letter, row, column } = tile
-        const tileX = boardX + column * tileSize
-        const tileY = boardY + row * tileSize
-        const sprite = this.add.sprite(tileX, tileY, letter).setInteractive()
+        const tileX = boardX + column * tileSize + tileSize / 2
+        const tileY = boardY + row * tileSize + tileSize / 2
+        const container = this.add.container(tileX, tileY)
+        const sprite = this.add.sprite(0, 0, letter).setInteractive()
         sprite.scale = tileSize / sprite.width
-        sprite.setOrigin(0)
+        sprite.setOrigin(0.5)
+        container.add(sprite)
 
         tile.sprite = sprite
+        tile.container = container
       }
     }
   }
@@ -100,6 +119,7 @@ export default class GameScene extends Phaser.Scene {
     this.wordInProgress = true
     this.currentTiles = [tile]
     this.highlightTile(tile)
+    this.bulgeTile(tile)
 
     this.currentWordText.setText(tile.letter)
   }
@@ -127,9 +147,23 @@ export default class GameScene extends Phaser.Scene {
 
     this.currentTiles.push(tile)
     this.highlightTile(tile)
+    this.unbulgeTile(lastTile)
+    this.bulgeTile(tile)
 
     const word = this.currentTiles.map(tile => tile.letter).join('')
     this.currentWordText.setText(word)
+  }
+
+  bulgeTile (tile: Tile) {
+    this.layers.middleground.remove(tile.container)
+    this.layers.foreground.add(tile.container)
+    tile.container.setScale(1.1)
+  }
+
+  unbulgeTile (tile: Tile) {
+    this.layers.foreground.remove(tile.container)
+    this.layers.middleground.add(tile.container)
+    tile.container.setScale(1)
   }
 
   getWordScore (word: string): number {
@@ -176,6 +210,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.currentTiles.forEach(tile => this.unhighlightTile(tile))
+    this.unbulgeTile(this.currentTiles[this.currentTiles.length - 1])
     this.wordInProgress = false
     this.currentTiles = null
   }
@@ -251,8 +286,8 @@ export default class GameScene extends Phaser.Scene {
 
   resetCurrentWordText (): void {
     this.currentWordText.setText('')
-    this.currentWordText.setTint(0xffffff)
-    this.currentWordText.setAlpha(1)
+    this.currentWordText.clearTint()
+    this.currentWordText.clearAlpha()
     this.currentWordText.setPosition(this.currentWordTextStartPosition.x, this.currentWordTextStartPosition.y)
   }
 
@@ -284,7 +319,7 @@ function createBoard (size: number): Tile[][] {
       const dice = dieLeft.shift()
       // Roll dice
       const letter = Phaser.Math.RND.pick(dice)
-      row.push({ row: y, column: x, letter, sprite: null })
+      row.push({ row: y, column: x, letter, sprite: null, container: null })
     }
     board.push(row)
   }
