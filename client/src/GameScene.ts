@@ -3,7 +3,6 @@ import blankDice from './assets/blank_dice.png'
 import woodTiles from './assets/Wood'
 import availableDie from './dice'
 import greenfelt from './assets/greenfelt.jpg'
-
 interface Tile {
   row: number
   column: number
@@ -27,10 +26,13 @@ const boardX = 100
 const boardY = 100
 const boardSize = 4
 const tileSize = 100
+const roundTimeSeconds = 180
 
 export default class GameScene extends Phaser.Scene {
   board: Tile[][]
   currentTiles: Tile[]
+  timerText: Phaser.GameObjects.Text
+  timerEvent: Phaser.Time.TimerEvent
   currentWordText: Phaser.GameObjects.Text
   currentWordTextStartPosition: Phaser.Geom.Point
   wordInProgress = false
@@ -50,8 +52,17 @@ export default class GameScene extends Phaser.Scene {
     this.load.image('background', greenfelt)
   }
 
+  update (time, delta) {
+    if (this.timerText) {
+      this.timerText.setText(Math.ceil(roundTimeSeconds - this.timerEvent.getElapsedSeconds()).toString())
+    }
+  }
+
   async create () {
-    await this.fetchDictionaries() // TODO: loader?
+    // TODO: proper loader, not part of the game scene
+    const dictLoadText = this.add.text(10, 10, 'Loading dictionaries...')
+    await this.fetchDictionaries()
+    dictLoadText.destroy()
     this.initBoard()
     this.input.on('pointerdown', pointer => this.onPointerDown(pointer))
     this.input.on('pointermove', pointer => this.onPointerMove(pointer))
@@ -90,6 +101,23 @@ export default class GameScene extends Phaser.Scene {
       middleground: this.add.container(0, 0, [...allTileContainers, this.currentWordText, this.scoreText]),
       foreground: this.add.container(0, 0)
     }
+
+    this.timerEvent = this.time.addEvent({
+      delay: roundTimeSeconds * 1000,
+      callback: this.onTimeOut,
+      callbackScope: this
+    })
+
+    this.timerText = this.add.text(10, 10, roundTimeSeconds.toString())
+      .setFontFamily('Arial')
+      .setFontSize(25)
+      .setColor('white')
+      .setStroke('black', 4)
+      .setAlign('left')
+  }
+
+  onTimeOut () {
+    this.scene.restart()
   }
 
   async fetchDictionaries () {
@@ -329,7 +357,7 @@ export default class GameScene extends Phaser.Scene {
 
 function createBoard (size: number): Tile[][] {
   const board: Tile[][] = []
-  const dieLeft = Phaser.Math.RND.shuffle(availableDie)
+  const dieLeft = Phaser.Math.RND.shuffle([...availableDie])
   for (let y = 0; y < size; ++y) {
     const row: Tile[] = []
     for (let x = 0; x < size; ++x) {
