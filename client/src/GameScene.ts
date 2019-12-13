@@ -1,8 +1,24 @@
 import Phaser from 'phaser'
+import io from 'socket.io-client'
+
 import blankDice from './assets/blank_dice.png'
 import woodTiles from './assets/Wood'
-import availableDie from './dice'
 import greenfelt from './assets/greenfelt.jpg'
+import availableDie from './dice'
+
+const socket = io('ws://localhost:3001', {
+  transports: ['websocket']
+})
+socket.on('connect', (...args) => {
+  console.log('connect', ...args)
+})
+socket.on('event', (data) => {
+  console.log('event', data)
+})
+socket.on('disconnect', () => {
+  console.log('disconnect')
+})
+
 interface Tile {
   row: number
   column: number

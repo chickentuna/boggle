@@ -1,6 +1,8 @@
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import cors from '@koa/cors'
+import http from 'http'
+import io from 'socket.io'
 
 import accessLog from './accessLog'
 import errorLog from './errorLog'
@@ -19,9 +21,15 @@ app.on('error', errorLog)
 app.use(router.routes())
 app.use(router.allowedMethods())
 
+const server = http.createServer(app.callback())
+const socket = io(server)
+socket.on('connection', () => {
+  log.info('socket io connection')
+})
+
 const port = process.env.PORT || 3001
 
-app.listen(port, () => {
+server.listen(port, () => {
   log.info('Application started')
   log.info(`└── Listening on port: ${port}`)
 })
