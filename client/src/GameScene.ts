@@ -208,7 +208,7 @@ export default class GameScene extends Phaser.Scene {
   async fetchDictionaries () {
     const response = await fetch('http://localhost:3001/dictionaries')
     this.dictionaries = await response.json()
-    this.dictionary = this.dictionaries.FR
+    this.dictionary = this.dictionaries.FR.filter(word => word.length >= 3)
   }
 
   initBoard () {
