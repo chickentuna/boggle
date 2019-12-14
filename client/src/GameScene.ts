@@ -80,6 +80,7 @@ export default class GameScene extends Phaser.Scene {
     await this.fetchDictionaries()
     dictLoadText.destroy()
     this.initBoard()
+    this.findSolutions()
     this.input.on('pointerdown', pointer => this.onPointerDown(pointer))
     this.input.on('pointermove', pointer => this.onPointerMove(pointer))
     this.input.on('pointerupoutside', pointer => this.onPointerUp(pointer))
@@ -130,6 +131,62 @@ export default class GameScene extends Phaser.Scene {
       .setColor('white')
       .setStroke('black', 4)
       .setAlign('left')
+  }
+
+  findSolutions (): string[] {
+    const start = Date.now()
+    const solutions = this.dictionary.filter(word => this.wordExistsOnBoard(word))
+    const end = Date.now()
+    const duration = end - start
+    console.log(`Found solutions in ${duration}ms`, solutions)
+    return solutions
+  }
+
+  wordExistsOnBoard (word: string): boolean {
+    for (const row of this.board) {
+      for (const tile of row) {
+        if (this.canMakeWordFromTile(word, tile)) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+
+  canMakeWordFromTile (word: string, tile: Tile): boolean {
+    if (tile.letter !== word[0]) {
+      return false
+    }
+
+    let tileSequences: Tile[][] = [[tile]]
+
+    for (let i = 1; i < word.length; i++) {
+      const letter = word[i]
+      tileSequences = tileSequences
+        .flatMap(sequence => {
+          const lastTile = sequence[sequence.length - 1]
+          const neighboursCoords = [
+            [lastTile.row - 1, lastTile.column],
+            [lastTile.row - 1, lastTile.column + 1],
+            [lastTile.row, lastTile.column + 1],
+            [lastTile.row + 1, lastTile.column + 1],
+            [lastTile.row + 1, lastTile.column],
+            [lastTile.row + 1, lastTile.column - 1],
+            [lastTile.row, lastTile.column - 1],
+            [lastTile.row - 1, lastTile.column - 1]
+          ]
+          const neighbours = neighboursCoords
+            .filter(([row, column]) => column >= 0 && column < boardSize && row >= 0 && row < boardSize)
+            .map(([row, column]) => this.board[row][column])
+          return neighbours
+            .filter(neighbour => neighbour.letter === letter && !sequence.includes(neighbour))
+            .map(neighbour => [...sequence, neighbour])
+        })
+      if (tileSequences.length === 0) {
+        return false
+      }
+    }
+    return true
   }
 
   onTimeOut () {
