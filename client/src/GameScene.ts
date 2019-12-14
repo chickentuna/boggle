@@ -33,6 +33,11 @@ interface GameLayers {
   background: Phaser.GameObjects.Container
 }
 
+interface ValidWord {
+  word: string
+  sequence: Tile[]
+}
+
 enum Language {
   EN = 'EN',
   FR = 'FR',
@@ -80,7 +85,7 @@ export default class GameScene extends Phaser.Scene {
     await this.fetchDictionaries()
     dictLoadText.destroy()
     this.initBoard()
-    this.findSolutions()
+    this.findValidWords()
     this.input.on('pointerdown', pointer => this.onPointerDown(pointer))
     this.input.on('pointermove', pointer => this.onPointerMove(pointer))
     this.input.on('pointerupoutside', pointer => this.onPointerUp(pointer))
@@ -133,34 +138,44 @@ export default class GameScene extends Phaser.Scene {
       .setAlign('left')
   }
 
-  findSolutions (): string[] {
+  findValidWords (): ValidWord[] {
     const start = Date.now()
-    const solutions = this.dictionary.filter(word => this.wordExistsOnBoard(word))
+
+    const validWords: ValidWord[] = []
+    for (const word of this.dictionary) {
+      const sequence = this.findSequence(word)
+      if (sequence != null) {
+        validWords.push({ word, sequence })
+      }
+    }
+
     const end = Date.now()
     const duration = end - start
-    console.log(`Found solutions in ${duration}ms`, solutions)
-    return solutions
+    console.log(`Found ${validWords.length} solutions in ${duration}ms`, validWords)
+
+    return validWords
   }
 
-  wordExistsOnBoard (word: string): boolean {
+  findSequence (word: string): Tile[] {
     for (const row of this.board) {
       for (const tile of row) {
-        if (this.canMakeWordFromTile(word, tile)) {
-          return true
+        const sequence = this.findSequenceFromTile(word, tile)
+        if (sequence != null) {
+          return sequence
         }
       }
     }
-    return false
+    return null
   }
 
-  canMakeWordFromTile (word: string, tile: Tile): boolean {
+  findSequenceFromTile (word: string, tile: Tile): Tile[] {
     if (tile.letter !== word[0]) {
-      return false
+      return null
     }
 
     let tileSequences: Tile[][] = [[tile]]
 
-    for (let i = 1; i < word.length; i++) {
+    for (let i = 1; i < word.length && tileSequences.length > 0; i++) {
       const letter = word[i]
       tileSequences = tileSequences
         .flatMap(sequence => {
@@ -182,11 +197,8 @@ export default class GameScene extends Phaser.Scene {
             .filter(neighbour => neighbour.letter === letter && !sequence.includes(neighbour))
             .map(neighbour => [...sequence, neighbour])
         })
-      if (tileSequences.length === 0) {
-        return false
-      }
     }
-    return true
+    return tileSequences.length > 0 ? tileSequences[0] : null
   }
 
   onTimeOut () {
