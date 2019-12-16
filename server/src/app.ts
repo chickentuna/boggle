@@ -2,12 +2,13 @@ import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import cors from '@koa/cors'
 import http from 'http'
-import io from 'socket.io'
+import socketIo from 'socket.io'
 
 import accessLog from './accessLog'
 import errorLog from './errorLog'
 import log from './log'
 import router from './router'
+import { configureSocketServer } from './socket'
 
 const app = new Koa()
 
@@ -22,10 +23,8 @@ app.use(router.routes())
 app.use(router.allowedMethods())
 
 const server = http.createServer(app.callback())
-const socket = io(server)
-socket.on('connection', () => {
-  log.info('socket io connection')
-})
+const io = socketIo(server)
+configureSocketServer(io)
 
 const port = process.env.PORT || 3001
 

@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 
 import greenfelt from './assets/greenfelt.jpg'
 import { GAME_HEIGHT, GAME_WIDTH } from './constants'
-
+import socket from './socket'
 import './LoginForm.scss'
 
 export default class LoginScene extends Phaser.Scene {
@@ -29,29 +29,23 @@ export default class LoginScene extends Phaser.Scene {
 
     element.on('click', (event) => {
       if (event.target.className === 'LoginForm-playButton') {
-        const inputText = element.getChildByProperty('className', 'LoginForm-nickname_input') as HTMLInputElement
+        const input = element.getChildByProperty('className', 'LoginForm-nickname_input') as HTMLInputElement
 
-        console.log('play', inputText.value)
+        const nickname = input.value
+
+        console.log('play', nickname)
 
         // Have they entered anything?
-        if (inputText.value !== '') {
-          // // Turn off the click events
-          // element.removeListener('click')
+        if (nickname !== '') {
+          socket.emit('login', nickname)
 
-          // // Hide the login element
-          // element.setVisible(false)
+          element.removeListener('click')
+          element.setVisible(false)
 
-          // // Populate the text with whatever they typed in
-          // text.setText('Welcome ' + inputText.value)
+          // Without the timeout, the form stays on top
+          setTimeout(() => this.scene.switch('GameScene'), 500)
         } else {
-          // Flash the prompt
-          // this.tweens.add({
-          //   targets: text,
-          //   alpha: 0.2,
-          //   duration: 250,
-          //   ease: 'Power3',
-          //   yoyo: true
-          // })
+          // TODO: handle empty/already taken nicknames
         }
       }
     })

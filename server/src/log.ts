@@ -1,10 +1,15 @@
 import { createLogger, format, transports } from 'winston'
 
 const errorFormat = format.printf((info) => {
-  if (info.error) {
-    return `${info.timestamp} ${info.level}: ${info.message}\n\n${info.error.stack}`
+  const { level, message, timestamp, ...meta } = info
+  let logMessage = `${info.timestamp} ${info.level}: ${info.message}`
+  if (Object.keys(meta).length > 0) {
+    logMessage += ` ${JSON.stringify(meta)}`
   }
-  return `${info.timestamp} ${info.level}: ${info.message}`
+  if (info.error) {
+    logMessage += `\n\n${info.error.stack}`
+  }
+  return logMessage
 })
 
 const logger = createLogger({
