@@ -297,10 +297,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   getWordScore (word: string): number {
-    const wordExists = this.dictionary.includes(word)
-    if (!wordExists) {
-      return 0
-    }
     if (word.length < 3) {
       return 0
     } else if (word.length < 5) {
