@@ -1,14 +1,19 @@
 import React, { useEffect } from 'react'
 import Phaser from 'phaser'
 
+import { GAME_HEIGHT, GAME_WIDTH } from './constants'
 import GameScene from './GameScene'
+import LoginScene from './LoginScene'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game',
-  width: 600,
-  height: 600,
-  scene: GameScene
+  width: GAME_WIDTH,
+  height: GAME_HEIGHT,
+  scene: [LoginScene, GameScene],
+  dom: {
+    createContainer: true
+  }
 }
 
 function Game () {

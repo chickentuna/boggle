@@ -65,6 +65,12 @@ export default class GameScene extends Phaser.Scene {
   layers: GameLayers
   foreground: Phaser.GameObjects.Container
 
+  constructor () {
+    super({
+      key: 'GameScene'
+    })
+  }
+
   preload () {
     for (const letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
       this.load.image(letter, woodTiles[letter])

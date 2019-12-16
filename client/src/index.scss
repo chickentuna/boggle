@@ -1,4 +1,6 @@
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -12,6 +14,38 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  font: inherit;
+  cursor: pointer;
+
+  &,
+  &:visited,
+  &:active,
+  &:hover {
+    outline: 0;
+  }
+}
+
+input {
+  margin: 0;
+  padding: 10px 15px;
+  border: 1px solid grey;
+  outline: none;
+  background-color: white;
+  font-size: 13px;
+  font-weight: 400;
+
+  &:hover,
+  &:active,
+  &:focus {
+    border: 1px solid black;
+    outline: none;
+  }
 }
