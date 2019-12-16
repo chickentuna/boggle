@@ -151,7 +151,8 @@ export default class GameScene extends Phaser.Scene {
 
     const end = Date.now()
     const duration = end - start
-    console.log(`Found ${validWords.length} solutions in ${duration}ms`, validWords)
+    const maxScore = validWords.reduce((score, validWord) => score + this.getWordScore(validWord.word), 0)
+    console.log(`Found ${validWords.length} solutions in ${duration}ms, maxScore = ${maxScore}`, validWords)
 
     return validWords
   }
