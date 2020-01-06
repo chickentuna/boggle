@@ -37,17 +37,23 @@ export default class LoginScene extends Phaser.Scene {
 
         // Have they entered anything?
         if (nickname !== '') {
-          socket.emit('login', nickname)
-
           element.removeListener('click')
           element.setVisible(false)
 
-          // Without the timeout, the form stays on top
-          setTimeout(() => this.scene.switch('GameScene'), 500)
+          socket.emit('login', nickname)
         } else {
           // TODO: handle empty/already taken nicknames
         }
       }
     })
+
+    const self = this
+    function handleMatches (data) {
+      // Without the timeout, the form stays on top
+      setTimeout(() => self.scene.start('MatchListScene', data), 500)
+      socket.off('matches', handleMatches)
+    }
+
+    socket.on('matches', handleMatches)
   }
 }
