@@ -1,19 +1,7 @@
+import { User, Match } from './types'
+
 // Mock "persistent" data
-interface User {
-    name:string
-  }
-interface Round {
-    results: Result[]
-}
-interface Match {
-    users: Array<User>
-    rounds: Array<Round>
-}
-interface Result {
-    user: User
-    score: Number
-    words: string[]
-}
+
 const users:Array<User> = [
   { name: 'Julien' },
   { name: 'Val' }
