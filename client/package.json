@@ -8,7 +8,7 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
-    "node-sass": "4.13.0",
+    "node-sass": "4.13.1",
     "phaser": "3.21.0",
     "react": "16.12.0",
     "react-dom": "16.12.0",
