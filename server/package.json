@@ -13,7 +13,7 @@
     "koa-bodyparser": "4.2.1",
     "koa-router": "7.4.0",
     "remove-accents": "0.4.2",
-    "socket.io": "2.3.0",
+    "socket.io": "2.4.0",
     "winston": "3.2.1"
   },
   "devDependencies": {
